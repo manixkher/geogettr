@@ -49,9 +49,6 @@ print(f"Number of unique geocells: {NUM_CLASSES}")
 
 # Training
 
-
-
-
 model = GeocellResNet(NUM_CLASSES).to(device)
 
 if num_gpus > 1:
