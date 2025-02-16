@@ -10,15 +10,6 @@ from PIL import Image
 from data_test import OSV5MTest  # Importing OSV5MTest
 
 
-import os
-import numpy as np
-import torch
-import torchvision.transforms as transforms
-from torch.utils.data import Dataset
-from datasets import load_dataset
-from PIL import Image
-import pandas as pd
-
 # Load Quadtree Data
 quadtree_file_path = "quadtree_10_1000.csv"
 quadtree_df = pd.read_csv(quadtree_file_path)
