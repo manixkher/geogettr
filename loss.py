@@ -67,7 +67,6 @@ class HaversineSmoothedLoss(nn.Module):
                 
                 
                 smoothed_values[j] = np.exp(-(dist_i - dist_n) / self.tau)  # Apply exponential smoothing
-            print("Calculated distance between geocells : ", counter)
 
             # Convert smoothed distances into probability distribution
             total = sum(smoothed_values.values())

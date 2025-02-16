@@ -26,26 +26,17 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return R * c
 
 class OSV5MDataset(Dataset):
-    def __init__(self, split="train", transform=None, tau=75, limit=5, val_ratio=0.1):
+    def __init__(self, split="train", transform=None, tau=75, limit=5, val_ratio=0.1, dataset_path = None):
         """
         Args:
             split (str): "train" or "test"
             transform: Image transformation pipeline
             tau (float): Temperature parameter for label smoothing
         """
-        self.dataset = OSV5MTest(full=True).as_dataset(split=split)
-        # self.dataset = self.dataset.select(range(min(len(self.dataset), limit)))  # Limit dataset for testing
-        total_size = len(self.dataset)
-        val_size = int(total_size * val_ratio)
+        self.dataset = OSV5MTest(full=True, dataset_path=dataset_path).as_dataset(split=split)
+        self.dataset = self.dataset.select(range(min(len(self.dataset), limit)))  # Limit dataset for testing
 
-        if split == "train":
-            self.dataset = self.dataset.select(range(total_size - val_size))
-        if split == "val":
-            self.dataset = self.dataset.select(range(total_size - val_size, total_size))
-        if split == "test":
-            self.dataset = OSV5MTest(full=True).as_dataset(split="test")
-
-        print("Loaded dataset!")
+        print(f"Loaded dataset! Total of {len(self.dataset)} images")
         self.transform = transform if transform else self.default_transform()
         self.tau = tau
 
@@ -78,8 +69,10 @@ class OSV5MDataset(Dataset):
         lat, lon = sample["latitude"], sample["longitude"]
         geocell = sample["quadtree_10_1000"]
         label = self._haversine_label_smoothing(lat, lon)
+        latlon_tensor = torch.tensor([lat, lon], dtype=torch.float32)
+
         
-        return image, label, (lat, lon), geocell
+        return image, label, latlon_tensor, geocell
     
     @staticmethod
     def default_transform():
