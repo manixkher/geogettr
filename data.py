@@ -26,7 +26,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return R * c
 
 class OSV5MDataset(Dataset):
-    def __init__(self, split="train", transform=None, tau=75, limit=5):
+    def __init__(self, split="train", transform=None, tau=75, limit=5, val_ratio=0.1):
         """
         Args:
             split (str): "train" or "test"
@@ -34,7 +34,17 @@ class OSV5MDataset(Dataset):
             tau (float): Temperature parameter for label smoothing
         """
         self.dataset = OSV5MTest(full=True).as_dataset(split=split)
-        self.dataset = self.dataset.select(range(min(len(self.dataset), limit)))  # Limit dataset for testing
+        # self.dataset = self.dataset.select(range(min(len(self.dataset), limit)))  # Limit dataset for testing
+        total_size = len(self.dataset)
+        val_size = int(total_size * val_ratio)
+
+        if split == "train":
+            self.dataset = self.dataset.select(range(total_size - val_size))
+        if split == "val":
+            self.dataset = self.dataset.select(range(total_size - val_size, total_size))
+        if split == "test":
+            self.dataset = OSV5MTest(full=True).as_dataset(split="test")
+
         print("Loaded dataset!")
         self.transform = transform if transform else self.default_transform()
         self.tau = tau
