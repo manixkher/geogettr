@@ -34,12 +34,8 @@ class HaversineSmoothedLoss(nn.Module):
 
         # Convert quadtree centroids to a single GPU tensor for efficiency
         global quadtree_centroids_tensor, quadtree_ids_tensor
-        quadtree_centroids_tensor = torch.tensor(
-            list(quadtree_centroids.values()), dtype=torch.float32, device="cuda"
-        )
-        quadtree_ids_tensor = torch.tensor(
-            list(quadtree_centroids.keys()), dtype=torch.long, device="cuda"
-        )
+        quadtree_centroids_tensor = quadtree_centroids
+        quadtree_ids_tensor = quadtree_cluster_ids
     
 
     # def forward(self, pred_logits, latlon, geocell_indices):
@@ -124,10 +120,10 @@ class HaversineSmoothedLoss(nn.Module):
         lat1, lon1 = latlon[:, 0].unsqueeze(1), latlon[:, 1].unsqueeze(1)  # Shape: (batch_size, 1)
         lat2, lon2 = quadtree_centroids_tensor[:, 0], quadtree_centroids_tensor[:, 1]  # Shape: (num_classes,)
 
-        dists = haversine_distance_torch(lat1, lon1, lat2, lon2, self.earth_radius)  # Shape: (batch_size, num_classes)
+        dists = haversine_distance(lat1, lon1, lat2, lon2, self.earth_radius)  # Shape: (batch_size, num_classes)
 
         # Get distance to the true geocell (vectorized)
-        d_true = haversine_distance_torch(latlon[:, 0], latlon[:, 1], true_geocell_coords[:, 0], true_geocell_coords[:, 1], self.earth_radius)  # Shape: (batch_size,)
+        d_true = haversine_distance(latlon[:, 0], latlon[:, 1], true_geocell_coords[:, 0], true_geocell_coords[:, 1], self.earth_radius)  # Shape: (batch_size,)
 
         # Compute smoothed probabilities
         smoothed_probs = torch.exp(-(dists - d_true.unsqueeze(1)) / self.tau)  # Shape: (batch_size, num_classes)
