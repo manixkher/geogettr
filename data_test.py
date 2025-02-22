@@ -4,18 +4,25 @@ from my_datasets.osv5m.osv5m_test import OSV5M
 import datasets
 
 # Set up paths
-DATASET_DIR = "my_datasets/osv5m"
-TRAIN_ZIP = os.path.join(DATASET_DIR, "images", "train", "00")
-TRAIN_CSV = os.path.join(DATASET_DIR, "train.csv")
+
+
 
 # Define a subclass to override _split_generators for single ZIP
 class OSV5MTest(OSV5M):
+    def __init__(self, dataset_path, *args, **kwargs):
+        self.full = kwargs.pop('full', True)
+        print(f"DEBUG: OSV5MTest initialized with full={self.full}")
+        self.DATASET_DIR = dataset_path
+        self.TRAIN_DIR = os.path.join(self.DATASET_DIR, "images", "train")
+        self.TRAIN_CSV = os.path.join(self.DATASET_DIR, "train.csv")
+        super().__init__(*args, **kwargs)
+        self.full = True
     
     def _generate_examples(self, image_paths, annotation_path):
 
         df = self.df(annotation_path)
         print(f"DEBUG: Loaded {len(df)} metadata entries")  # ✅ Check if metadata is loaded
-
+        
         image_paths = list(image_paths)  # Convert generator to list
         print(f"DEBUG: Found {len(image_paths)} images")  # ✅ Check if images are passed
 
@@ -40,23 +47,22 @@ class OSV5MTest(OSV5M):
 
 
     def _split_generators(self, dl_manager):
-        print("HELLO(!)")
         return [
             datasets.SplitGenerator(
                 name=datasets.Split.TRAIN,
                 gen_kwargs={
-                    "image_paths": dl_manager.iter_files("my_datasets/osv5m/images/train/00/"),
-                    "annotation_path": TRAIN_CSV,
+                    "image_paths": dl_manager.iter_files(self.TRAIN_DIR),
+                    "annotation_path": self.TRAIN_CSV,
                 },
             )
         ]
 
-# Instantiate and prepare the dataset
-dataset = OSV5MTest(full=True)
-dataset.download_and_prepare()
-# print(dataset.as_dataset())
-ds = dataset.as_dataset(split="train")
+# # Instantiate and prepare the dataset
+# dataset = OSV5MTest(full=True)
+# dataset.download_and_prepare()
+# # print(dataset.as_dataset())
+# ds = dataset.as_dataset(split="train")
 
-# # Print the first few entries
-for i in range(5):  # Print first 5 entries
-    print(ds[i])
+# # # Print the first few entries
+# for i in range(5):  # Print first 5 entries
+#     print(ds[i])

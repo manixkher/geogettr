@@ -36,7 +36,9 @@ quadtree_cluster_ids = torch.tensor(
 
 def haversine_distance(lat1, lon1, lat2, lon2, earth_radius=6371):
     """Compute Haversine distance between two sets of points using PyTorch (GPU-accelerated)."""
-    lat1, lon1, lat2, lon2 = map(torch.radians, [lat1, lon1, lat2, lon2])
+    # lat1, lon1, lat2, lon2 = map(torch.radians, [lat1, lon1, lat2, lon2])
+    lat1, lon1, lat2, lon2 = map(lambda x: x * (torch.pi / 180), [lat1, lon1, lat2, lon2])
+
     dlat = lat2 - lat1
     dlon = lon2 - lon1
 
@@ -53,12 +55,15 @@ class OSV5MDataset(Dataset):
             transform: Image transformation pipeline
             tau (float): Temperature parameter for label smoothing
         """
-        self.dataset = OSV5MTest(full=True, dataset_path=dataset_path).as_dataset(split=split)
-        self.dataset = self.dataset.select(range(min(len(self.dataset), limit)))  # Limit dataset for testing
+        dataset_builder = OSV5MTest(full=True, dataset_path=dataset_path)
+        dataset_builder.download_and_prepare()
+        self.dataset = dataset_builder.as_dataset(split=split)
+        # self.dataset = self.dataset.select(range(min(len(self.dataset), limit)))  # Limit dataset for testing
 
         print(f"Loaded {split} dataset! Total of {len(self.dataset)} images")
         self.transform = transform if transform else self.default_transform()
         self.tau = tau
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def _haversine_label_smoothing(self, lat, lon):
         """Generate smoothed geocell labels based on haversine distance."""
