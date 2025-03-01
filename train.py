@@ -15,7 +15,7 @@ from tqdm import tqdm
 import argparse
 if __name__ == "__main__":
     print("Beginning train.py")
-    mp.set_start_method("spawn", force=True)
+    # mp.set_start_method("spawn", force=True)
     parser = argparse.ArgumentParser(description="Geogettr training params")
     parser.add_argument("--dataset", type=str, required=True, help="Path to the dataset directory.")
     parser.add_argument("--epochs", type=int, default=5, help="Number of training epochs.")
@@ -87,10 +87,10 @@ if __name__ == "__main__":
             optimizer.step()
 
             total_train_loss += loss.item()
-            train_progress.set_postfix(loss=f"{loss.item():.4f}")  # ✅ Update tqdm
+            train_progress.set_postfix(loss=f"{loss.item():.4f}")  # Update tqdm
 
         avg_train_loss = total_train_loss / len(train_loader)
-        print(f"✅ Epoch {epoch+1}/{EPOCHS} | Train Loss: {avg_train_loss:.4f}")
+        print(f"Epoch {epoch+1}/{EPOCHS} | Train Loss: {avg_train_loss:.4f}")
 
         # -----------------------------
         # VALIDATION PHASE (Fixed tqdm)
