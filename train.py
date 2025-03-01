@@ -15,7 +15,7 @@ from tqdm import tqdm
 import argparse
 if __name__ == "__main__":
     print("Beginning train.py")
-    mp.set_start_method("spawn", force=True)
+    # mp.set_start_method("spawn", force=True)
     parser = argparse.ArgumentParser(description="Geogettr training params")
     parser.add_argument("--dataset", type=str, required=True, help="Path to the dataset directory.")
     parser.add_argument("--epochs", type=int, default=5, help="Number of training epochs.")
