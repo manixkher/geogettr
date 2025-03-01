@@ -69,66 +69,51 @@ if __name__ == "__main__":
         model.train()
         total_train_loss = 0.0
 
-        # Labels contain geocell probabilities
-        batch_counter = 0
+        # Training Progress Bar (Fixed)
         train_progress = tqdm(train_loader, desc=f"Training Epoch {epoch+1}", leave=False)
-        for images, geocells_smoothed, latlon_of_image, geocell_index in train_loader:
+        for images, geocells_smoothed, latlon_of_image, geocell_index in train_progress:
             
-            images = images.to(device)
-            geocells_smoothed = geocells_smoothed.to(device)
-
+            images, geocells_smoothed = images.to(device), geocells_smoothed.to(device)
             latlon_of_image = latlon_of_image.to(device)
             geocell_index = geocell_index.to(device) 
 
-            # print(f"Model Output Shape: {model(images).shape}")
-            # print(f"True Labels Shape: {geocell_index.shape}")
-            
             optimizer.zero_grad()
             outputs = model(images)
-            
             if isinstance(outputs, tuple):
-                outputs = outputs[0]
+                outputs = outputs[0]  # Handle DataParallel output
 
-            loss = criterion(outputs, latlon_of_image, geocell_index)  # Use indices instead of raw geocells
+            loss = criterion(outputs, latlon_of_image, geocell_index)
             loss.backward()
             optimizer.step()
 
             total_train_loss += loss.item()
-            train_progress.set_postfix(loss=f"{loss.item():.4f}")
-            
-            if (batch_counter + 1) % 100 == 0:
-                print(f"Epoch {epoch+1}/{EPOCHS} - Batch {batch_counter+1}/{len(train_loader)} - Loss: {loss.item():.4f}")
+            train_progress.set_postfix(loss=f"{loss.item():.4f}")  # ✅ Update tqdm
 
-            for name, param in model.named_parameters():
-                if param.grad is None:
-                    print(f"{name} has no gradient!")
-                elif torch.all(param.grad == 0):
-                    print(f"{name} gradient is zero!")
+        avg_train_loss = total_train_loss / len(train_loader)
+        print(f"✅ Epoch {epoch+1}/{EPOCHS} | Train Loss: {avg_train_loss:.4f}")
 
-            
-        
+        # -----------------------------
+        # VALIDATION PHASE (Fixed tqdm)
+        # -----------------------------
         model.eval()
         total_val_loss = 0.0
         val_progress = tqdm(val_loader, desc=f"Validating Epoch {epoch+1}", leave=False)
         with torch.no_grad():
-            for images, geocells_smoothed, latlon_of_image, geocell_index in val_loader:
+            for images, geocells_smoothed, latlon_of_image, geocell_index in val_progress:
                 images, geocells_smoothed = images.to(device), geocells_smoothed.to(device)
                 latlon_of_image = latlon_of_image.to(device)
                 geocell_index = geocell_index.to(device)
-                
+
                 outputs = model(images)
-                
                 if isinstance(outputs, tuple):
-                    outputs = outputs[0] 
-                
+                    outputs = outputs[0]  # Handle DataParallel output
+
                 loss = criterion(outputs, latlon_of_image, geocell_index)
                 total_val_loss += loss.item()
-                val_progress.set_postfix(loss=f"{loss.item():.4f}")
+                val_progress.set_postfix(loss=f"{loss.item():.4f}")  # Update tqdm
 
-        avg_train_loss = total_train_loss / len(train_loader)
         avg_val_loss = total_val_loss / len(val_loader)
-
-        print(f"Epoch {epoch+1}/{EPOCHS} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
+        print(f"Validation | Val Loss: {avg_val_loss:.4f}")
 
         # Save model after each epoch
         model_path = f"epochs/{args.model_name}_epoch_{epoch+1}.pth"
