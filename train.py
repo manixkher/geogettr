@@ -87,10 +87,10 @@ if __name__ == "__main__":
             optimizer.step()
 
             total_train_loss += loss.item()
-            train_progress.set_postfix(loss=f"{loss.item():.4f}")  # ✅ Update tqdm
+            train_progress.set_postfix(loss=f"{loss.item():.4f}")  # Update tqdm
 
         avg_train_loss = total_train_loss / len(train_loader)
-        print(f"✅ Epoch {epoch+1}/{EPOCHS} | Train Loss: {avg_train_loss:.4f}")
+        print(f"Epoch {epoch+1}/{EPOCHS} | Train Loss: {avg_train_loss:.4f}")
 
         # -----------------------------
         # VALIDATION PHASE (Fixed tqdm)
