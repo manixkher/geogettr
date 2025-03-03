@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     # data
 
-    BATCH_SIZE = 64
+    BATCH_SIZE = 128
     NUM_WORKERS = 0
 
     transform = transforms.Compose([
@@ -55,9 +55,9 @@ if __name__ == "__main__":
 
     model = GeocellResNet(NUM_CLASSES).to(device)
 
-    if num_gpus > 1:
-        print(f"Using DataParallel across {num_gpus} GPUs")
-        model = nn.DataParallel(model)
+    # if num_gpus > 1:
+    #     print(f"Using DataParallel across {num_gpus} GPUs")
+    #     model = nn.DataParallel(model)
 
     criterion = HaversineSmoothedLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.01)

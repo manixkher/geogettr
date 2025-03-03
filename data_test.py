@@ -15,6 +15,8 @@ class OSV5MTest(OSV5M):
         self.DATASET_DIR = dataset_path
         self.TRAIN_DIR = os.path.join(self.DATASET_DIR, "images", "train")
         self.TRAIN_CSV = os.path.join(self.DATASET_DIR, "train.csv")
+        self.TEST_DIR = os.path.join(self.DATASET_DIR, "images", "test")
+        self.TEST_CSV = os.path.join(self.DATASET_DIR, "test.csv")
         super().__init__(*args, **kwargs)
         self.full = True
     
@@ -53,6 +55,13 @@ class OSV5MTest(OSV5M):
                 gen_kwargs={
                     "image_paths": dl_manager.iter_files(self.TRAIN_DIR),
                     "annotation_path": self.TRAIN_CSV,
+                },
+            ),
+            datasets.SplitGenerator(
+                name=datasets.Split.TEST,
+                gen_kwargs={
+                    "image_paths": dl_manager.iter_files(self.TEST_DIR),
+                    "annotation_path": self.TEST_CSV,
                 },
             )
         ]
