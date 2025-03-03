@@ -47,6 +47,7 @@ rm 00.zip  # Free up space
 cd $HOME/Work/geogettr  # Adjust to match your repo location
 
 # Run training (process only /00)
-python train.py --dataset "$SCRATCH_DIR" --epochs 5
+rm -rf ~/.cache/huggingface/datasets/
+python train.py --dataset "$SCRATCH_DIR" --epochs 5 --model_name "00_test"
 
 echo "SLURM job finished."
