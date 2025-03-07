@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=extract_europe_images
 #SBATCH --partition=PGR-Standard
-#SBATCH --mem=32G                 # Allocate 32GB memory
-#SBATCH --time=12:00:00            # Set max runtime (adjust as needed)
-#SBATCH --output=logs/extract_europe_images.out  # Save log output
-#SBATCH --error=logs/extract_europe_images.err   # Save error logs
-#SBATCH --cpus-per-task=8          # Use 8 CPU cores for parallel extraction
+#SBATCH --mem=64G                 # Increase memory for faster I/O
+#SBATCH --time=12:00:00            # Increase time if needed
+#SBATCH --output=logs/extract_europe_images.out
+#SBATCH --error=logs/extract_europe_images.err
+#SBATCH --cpus-per-task=16         # Use more CPUs for parallel extraction
 
-echo "Starting SLURM job for extracting European images on $(hostname)"
+echo "Starting SLURM job on $(hostname)"
 
 # Activate Python environment
 source ~/venvs/geogettr/bin/activate
@@ -16,22 +16,25 @@ echo "Using $(nproc) CPU cores"
 
 # Set dataset paths
 DATASET_DIR="$HOME/Work/geogettr/my_datasets/osv5m"
-SCRATCH_DIR="/disk/scratch/$USER/my_datasets/osv5m"  # Faster access on scratch storage
+SCRATCH_DIR="/disk/scratch/$USER/my_datasets/osv5m"
 
-# Copy dataset to scratch storage for fast extraction
-mkdir -p $SCRATCH_DIR/images/train
-echo "Copying dataset to scratch storage..."
-rsync -av --progress $DATASET_DIR/images/train/*.zip $SCRATCH_DIR/images/train/
-rsync -av --progress $DATASET_DIR/train.csv $SCRATCH_DIR/
+# Ensure scratch storage directory exists
+mkdir -p $SCRATCH_DIR/images
+
+# 🔥 Move entire train directory to scratch before extracting
+if [ ! -d "$SCRATCH_DIR/images/train" ]; then
+    echo "Moving dataset to scratch storage..."
+    rsync -av --progress $DATASET_DIR/images/train/ $SCRATCH_DIR/images/train/
+else
+    echo "Dataset already in scratch, skipping transfer."
+fi
 
 # Move to scratch directory
 cd $SCRATCH_DIR/images/train
 
-echo "Unzipping all ZIP files..."
-for zip_file in *.zip; do
-    unzip -o -q "$zip_file"  # `-o` forces overwrite
-    rm "$zip_file"  # Free up space
-done
+# 🔥 Extract ZIPs in parallel for speed
+echo "Unzipping all ZIP files in parallel..."
+ls *.zip | parallel -j 8 "unzip -o -q {} && rm {}"
 
 echo "Dataset extraction complete in scratch storage."
 
@@ -39,6 +42,6 @@ echo "Dataset extraction complete in scratch storage."
 cd $HOME/Work/geogettr
 
 # Run the extraction script (which will process files in scratch storage)
-python $HOME/Work/geogettr/extract_european_images.py --dataset "$SCRATCH_DIR"
+python $HOME/Work/geogettr/extract_european_images.py
 
 echo "SLURM job finished extracting European images."
