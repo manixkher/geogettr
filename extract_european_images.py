@@ -1,21 +1,20 @@
 import os
 import zipfile
-import shutil
 
 # Paths
 data_root = "/disk/scratch/s2089339/my_datasets/osv5m/images/train"
-output_root = "/home/s2089339/Work/geogettr/my_datasets/osv5m/images/train_europe"
+output_root = "/disk/scratch/s2089339/my_datasets/osv5m/images/train_europe"
 os.makedirs(output_root, exist_ok=True)
 
 # Load image IDs to extract
-image_id_path = "/home/s2089339/Work/geogettr/my_datasets/osv5m/europe_image_ids.txt"
+image_id_path = "/disk/scratch/s2089339/my_datasets/osv5m/europe_image_ids.txt"
 with open(image_id_path, "r") as f:
     europe_image_ids = set(f.read().splitlines())  # Convert to set for fast lookup
 
-# Track extracted images
-extracted_count = 0
+print(f"Expecting to extract {len(europe_image_ids)} images.")
 
-# Extract only missing images from all ZIP files
+# Extract only required images without fully unzipping
+extracted_count = 0
 zip_files = [f for f in os.listdir(data_root) if f.endswith(".zip")]
 
 if not zip_files:

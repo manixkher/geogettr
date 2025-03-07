@@ -21,27 +21,16 @@ SCRATCH_DIR="/disk/scratch/$USER/my_datasets/osv5m"
 # Ensure scratch storage directory exists
 mkdir -p $SCRATCH_DIR/images
 
-# 🔥 Move entire train directory to scratch before extracting
-if [ ! -d "$SCRATCH_DIR/images/train" ]; then
-    echo "Moving dataset to scratch storage..."
-    rsync -av --progress $DATASET_DIR/images/train/ $SCRATCH_DIR/images/train/
-else
-    echo "Dataset already in scratch, skipping transfer."
-fi
+# Move entire train directory to scratch before extracting
+echo "Re-transferring dataset to scratch storage..."
+rsync -av --progress --delete $DATASET_DIR/images/train/ $SCRATCH_DIR/images/train/
 
-# Move to scratch directory
-cd $SCRATCH_DIR/images/train
-
-# 🔥 Extract ZIPs in parallel for speed
-echo "Unzipping all ZIP files in parallel..."
-ls *.zip | parallel -j 8 "unzip -o -q {} && rm {}"
-
-echo "Dataset extraction complete in scratch storage."
+echo "Dataset transfer to scratch complete."
 
 # Move to script directory
 cd $HOME/Work/geogettr
 
-# Run the extraction script (which will process files in scratch storage)
+# Run the extraction script, which will extract required images directly from ZIPs
 python $HOME/Work/geogettr/extract_european_images.py
 
 echo "SLURM job finished extracting European images."
