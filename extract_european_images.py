@@ -1,39 +1,68 @@
 import os
 import zipfile
+import shutil
+from concurrent.futures import ThreadPoolExecutor
 
-# Paths
-data_root = "/disk/scratch/s2089339/my_datasets/osv5m/images/train"
-output_root = "/disk/scratch/s2089339/my_datasets/osv5m/images/train_europe"
-os.makedirs(output_root, exist_ok=True)
+# **Paths**
+SCRATCH_DIR = "/disk/scratch/s2089339/my_datasets/osv5m"
+TRAIN_DIR = os.path.join(SCRATCH_DIR, "images/train")  # ✅ Location of ZIP files
+OUTPUT_DIR = os.path.join(SCRATCH_DIR, "images/train_europe")  # ✅ Store extracted images here
 
-# Load image IDs to extract
-image_id_path = "/disk/scratch/s2089339/my_datasets/osv5m/europe_image_ids.txt"
-with open(image_id_path, "r") as f:
-    europe_image_ids = set(f.read().splitlines())  # Convert to set for fast lookup
+# **Ensure `train_europe/` is cleared before extracting**
+if os.path.exists(OUTPUT_DIR):
+    print(f"🚨 Removing existing train_europe directory: {OUTPUT_DIR}")
+    shutil.rmtree(OUTPUT_DIR)
 
-print(f"Expecting to extract {len(europe_image_ids)} images.")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Extract only required images without fully unzipping
-extracted_count = 0
-zip_files = [f for f in os.listdir(data_root) if f.endswith(".zip")]
+# **Load image IDs to extract (all European images)**
+image_id_path = os.path.join(SCRATCH_DIR, "europe_image_ids.txt")
 
-if not zip_files:
-    print("No ZIP files found! Exiting.")
+if not os.path.exists(image_id_path):
+    print(f"❌ ERROR: europe_image_ids.txt not found at {image_id_path}")
     exit(1)
 
-for zip_file in zip_files:
-    zip_path = os.path.join(data_root, zip_file)
-    print(f"Processing {zip_file}...")
+with open(image_id_path, "r") as f:
+    europe_image_ids = {line.strip() + ".jpg" for line in f}  # Ensure IDs match filenames
 
+print(f"✅ Extracting {len(europe_image_ids)} European images.")
+
+# **Extract images from ZIP files**
+extracted_count = 0
+skipped_count = 0
+
+def extract_images_from_zip(zip_path):
+    global extracted_count, skipped_count
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        for image_name in zip_ref.namelist():
-            image_id = os.path.splitext(os.path.basename(image_name))[0]  # Extract just the `id`
+        zip_image_names = zip_ref.namelist()
 
-            if f"{image_id}.jpg" in europe_image_ids:  # Extract only missing images
-                zip_ref.extract(image_name, output_root)
+        # 🔥 Debugging: Show the first 10 filenames inside the ZIP
+        print(f"✅ First 10 images inside {os.path.basename(zip_path)}: {zip_image_names[:10]}")
+
+        # **Extract only matching images**
+        for image_name in zip_image_names:
+            # 🔥 Remove subdirectory from image filename
+            image_id = os.path.basename(image_name).strip()
+
+            if image_id in europe_image_ids:
+                zip_ref.extract(image_name, OUTPUT_DIR)
                 extracted_count += 1
+                if extracted_count % 10000 == 0:
+                    print(f"✅ Extracted {extracted_count} images so far...")
+            else:
+                skipped_count += 1
 
-                if extracted_count % 10000 == 0:  # Log every 10K extractions
-                    print(f"Extracted {extracted_count} images so far...")
+# **Process ZIP files in parallel using ThreadPoolExecutor**
+zip_files = [os.path.join(TRAIN_DIR, f) for f in os.listdir(TRAIN_DIR) if f.endswith(".zip")]
 
-print(f"Finished extracting {extracted_count} missing images.")
+if not zip_files:
+    print(f"❌ ERROR: No ZIP files found in {TRAIN_DIR}. Exiting.")
+    exit(1)
+
+print(f"✅ Found {len(zip_files)} ZIP files. Beginning extraction...")
+
+with ThreadPoolExecutor(max_workers=8) as executor:  # 🔥 Use 8 threads for faster extraction
+    executor.map(extract_images_from_zip, zip_files)
+
+print(f"✅ Finished extracting {extracted_count} European images!")
+print(f"❌ Skipped {skipped_count} images because they were not in `europe_image_ids.txt`")
