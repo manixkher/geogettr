@@ -1,9 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=extract_europe_images
 #SBATCH --partition=PGR-Standard
+#SBATCH --nodelist=damnii04    # Request specific GPU node
 #SBATCH --gres=gpu:1           # Request 1 GPU (if needed for later processing)
 #SBATCH --mem=64G              # Allocate 64GB memory for faster file I/O
-#SBATCH --time=06:00:00        # Set max runtime (adjust as needed)
+#SBATCH --time=24:00:00        # Set max runtime (adjust as needed)
 #SBATCH --output=logs/extract_europe_images.out
 #SBATCH --error=logs/extract_europe_images.err
 #SBATCH --cpus-per-task=16     # Use 16 CPU cores for parallel file operations
