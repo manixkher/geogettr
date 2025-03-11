@@ -60,7 +60,10 @@ if __name__ == "__main__":
     #     model = nn.DataParallel(model)
 
     criterion = HaversineSmoothedLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
+
+    # Set up learning rate annealing using StepLR
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     EPOCHS = args.epochs
 
@@ -114,7 +117,7 @@ if __name__ == "__main__":
 
         avg_val_loss = total_val_loss / len(val_loader)
         print(f"Validation | Val Loss: {avg_val_loss:.4f}")
-
+        scheduler.step()
         # Save model after each epoch
         model_path = f"epochs/{args.model_name}_epoch_{epoch+1}.pth"
         torch.save(model.state_dict(), model_path)

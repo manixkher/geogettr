@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=extract_europe_images
 #SBATCH --partition=PGR-Standard
-#SBATCH --nodelist=damnii04    # Request specific GPU node
 #SBATCH --gres=gpu:1           # Request 1 GPU (if needed for later processing)
 #SBATCH --mem=64G              # Allocate 64GB memory for faster file I/O
 #SBATCH --time=24:00:00        # Set max runtime (adjust as needed)
@@ -42,8 +41,20 @@ mkdir -p "$OUTPUT_SCRATCH"
 echo "📂 Extracting European images from dataset..."
 python ~/Work/geogettr/extract_european_images.py
 
+cd "$OUTPUT_SCRATCH" || { echo "Failed to cd into $OUTPUT_SCRATCH"; exit 1; }
+for folder in $(seq -w 00 97); do
+    if [ -d "$folder" ]; then
+         echo "Zipping folder $folder..."
+         zip -r "${folder}.zip" "$folder"
+    else
+         echo "Folder $folder not found, skipping."
+    fi
+done
+
+
 # **🔥 Step 5: Move extracted images back to home (parallel transfer)**
 echo "🚛 Moving extracted images to home directory..."
-rsync -a --info=progress2 "$OUTPUT_SCRATCH/" "$OUTPUT_HOME/"
+# rsync -a --info=progress2 "$OUTPUT_SCRATCH/" "$OUTPUT_HOME/"
+rsync -a --info=progress2 --include='*.zip' --exclude='*' "$OUTPUT_SCRATCH/" "$OUTPUT_HOME/"
 
 echo "🎉 SLURM job finished extracting European images!"
