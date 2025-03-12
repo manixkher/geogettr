@@ -10,7 +10,7 @@ from PIL import Image
 from data_test import OSV5MTest  # Importing OSV5MTest
 
 # Load Quadtree Data (Preload as a Tensor)
-quadtree_file_path = "quadtree_10_1000.csv"
+quadtree_file_path = "reduced_quadtree_10_1000.csv"
 quadtree_df = pd.read_csv(quadtree_file_path)
 # quadtree_centroids = dict(zip(quadtree_df["cluster_id"], zip(quadtree_df["mean_lat"], quadtree_df["mean_lon"])))
 
@@ -48,7 +48,7 @@ def haversine_distance(lat1, lon1, lat2, lon2, earth_radius=6371):
     return earth_radius * c  # Returns distance in km
 
 class OSV5MDataset(Dataset):
-    def __init__(self, split="train", transform=None, tau=75, limit=5, val_ratio=0.1, dataset_path = None):
+    def __init__(self, split="train", transform=None, tau=75, limit=15, val_ratio=0.1, dataset_path = None, label_to_index=None):
         """
         Args:
             split (str): "train" or "test"
@@ -64,6 +64,11 @@ class OSV5MDataset(Dataset):
         self.transform = transform if transform else self.default_transform()
         self.tau = tau
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+
+        # Create a mapping from the original label to a new contiguous index
+        self.label_to_index = label_to_index
+        print("Label mapping:", self.label_to_index)
 
     def _haversine_label_smoothing(self, lat, lon):
         """Generate smoothed geocell labels based on haversine distance."""
@@ -108,12 +113,14 @@ class OSV5MDataset(Dataset):
     
     def __getitem__(self, idx):
         """Retrieve an image + smoothed geocell labels."""
+        
         sample = self.dataset[idx]
         image = sample["image"].convert("RGB") if isinstance(sample["image"], Image.Image) else sample["image"]
         image = self.transform(image)
         
         lat, lon = sample["latitude"], sample["longitude"]
         geocell = sample["quadtree_10_1000"]
+        geocell = self.label_to_index[geocell]
         label = self._haversine_label_smoothing(lat, lon)
         latlon_tensor = torch.tensor([lat, lon], dtype=torch.float32, device=self.device)
 

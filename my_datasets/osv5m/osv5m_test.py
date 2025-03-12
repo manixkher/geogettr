@@ -87,8 +87,8 @@ class OSV5M(datasets.GeneratorBasedBuilder):
 
     def _split_generators(self, dl_manager):
         _URLS = {
-            "train": [join('images', 'train', '00.zip')],  # Only using train/00.zip
-            "train_meta": "train.csv",  # Assuming metadata is in train.csv
+            "train": [join('images', 'train_europe')],  # Only using train/00.zip
+            "train_meta": "reduced_train_europe.csv",  # Assuming metadata is in train.csv
         }
 
         # Use local paths instead of downloading

@@ -13,10 +13,10 @@ class OSV5MTest(OSV5M):
         self.full = kwargs.pop('full', True)
         print(f"DEBUG: OSV5MTest initialized with full={self.full}")
         self.DATASET_DIR = dataset_path
-        self.TRAIN_DIR = os.path.join(self.DATASET_DIR, "images", "train")
-        self.TRAIN_CSV = os.path.join(self.DATASET_DIR, "train.csv")
-        self.TEST_DIR = os.path.join(self.DATASET_DIR, "images", "test")
-        self.TEST_CSV = os.path.join(self.DATASET_DIR, "test.csv")
+        self.TRAIN_DIR = os.path.join(self.DATASET_DIR, "images", "train_europe")
+        self.TRAIN_CSV = os.path.join(self.DATASET_DIR, "reduced_train_europe.csv")
+        self.TEST_DIR = os.path.join(self.DATASET_DIR, "images", "test_europe")
+        self.TEST_CSV = os.path.join(self.DATASET_DIR, "reduced_train_europe.csv")
         super().__init__(*args, **kwargs)
         self.full = True
     

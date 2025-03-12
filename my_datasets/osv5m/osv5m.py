@@ -89,8 +89,8 @@ class OSV5M(datasets.GeneratorBasedBuilder):
         _URLS = {
             "train": [join('images', 'train', str(i).zfill(2) + '.zip') for i in range(98)],
             "test": [join('images', 'test', str(i).zfill(2) + '.zip') for i in range(5)],
-            "train_meta": "train.csv",
-            "test_meta": "test.csv",
+            "train_meta": "reduced_train_europe.csv.csv",
+            "test_meta": "reduced_test_europe.csv.csv",
         }
 
         data_files = dl_manager.download_and_extract(_URLS)
