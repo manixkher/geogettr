@@ -1,9 +1,9 @@
 import csv
 
 # Adjust paths as needed
-reduced_train_csv = "/home/s2089339/Work/geogettr/my_datasets/osv5m/reduced_train_europe.csv"
-original_test_csv = "/home/s2089339/Work/geogettr/my_datasets/osv5m/test.csv"
-filtered_test_csv = "/home/s2089339/Work/geogettr/my_datasets/osv5m/reduced_test_europe.csv"
+reduced_train_csv = "/home/s2751435/Work/geogettr/my_datasets/osv5m/reduced_train_europe.csv"
+original_test_csv = "/home/s2751435/Work/geogettr/my_datasets/osv5m/test.csv"
+filtered_test_csv = "/home/s2751435/Work/geogettr/my_datasets/osv5m/reduced_test_europe.csv"
 
 # Column name for the geocell ID
 quadtree_column = "quadtree_10_1000"
