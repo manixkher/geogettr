@@ -48,7 +48,7 @@ def haversine_distance(lat1, lon1, lat2, lon2, earth_radius=6371):
     return earth_radius * c  # Returns distance in km
 
 class OSV5MDataset(Dataset):
-    def __init__(self, split="train", transform=None, tau=75, limit=15, val_ratio=0.1, dataset_path = None, label_to_index=None):
+    def __init__(self, split="train", transform=None, tau=85, limit=15, val_ratio=0.1, dataset_path = None, label_to_index=None):
         """
         Args:
             split (str): "train" or "test"
@@ -72,20 +72,7 @@ class OSV5MDataset(Dataset):
 
     def _haversine_label_smoothing(self, lat, lon):
         """Generate smoothed geocell labels based on haversine distance."""
-        # smoothed_labels = {}
-        # true_geocell = min(quadtree_centroids, key=lambda g: haversine_distance(lat, lon, *quadtree_centroids[g]))
-        
-        # for geocell, (g_lat, g_lon) in quadtree_centroids.items():
-        #     d = haversine_distance(lat, lon, g_lat, g_lon)
-        #     d_true = haversine_distance(lat, lon, *quadtree_centroids[true_geocell])
-        #     smoothed_labels[geocell] = np.exp(-(d - d_true) / self.tau)
-        
-        # # Normalize
-        # total = sum(smoothed_labels.values())
-        # for geocell in smoothed_labels:
-        #     smoothed_labels[geocell] /= total
-        
-        # return torch.tensor(list(smoothed_labels.values()), dtype=torch.float32)
+     
 
         latlon = torch.tensor([lat, lon], dtype=torch.float32, device=self.device)
 

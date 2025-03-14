@@ -133,7 +133,7 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.001)
 
     # Set up learning rate annealing using StepLR
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.95)
 
     EPOCHS = args.epochs
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
             if isinstance(outputs, tuple):
                 outputs = outputs[0]  # Handle DataParallel output
 
-            loss = criterion(outputs, latlon_of_image, geocell_index)
+            loss = criterion(outputs, latlon_of_image, geocell_index, geocells_smoothed)
             loss.backward()
             optimizer.step()
 
@@ -190,6 +190,14 @@ if __name__ == "__main__":
                 print(f"  Logits -> min: {logits_min:.4f}, max: {logits_max:.4f}, mean: {logits_mean:.4f}, std: {logits_std:.4f}")
                 print(f"  Softmax -> min: {probs_min:.4f}, max: {probs_max:.4f}, mean: {probs_mean:.4f}, std: {probs_std:.4f}")
                 print(f"  Avg per-class softmax std across batch: {avg_per_class_std:.4f}")
+                topk_values, topk_indices = softmax_probs[0].topk(10)
+                true_label = geocell_index[0].item()
+                print(f"  True label for first sample: {true_label}")
+                print("  Top 10 classes for first sample in the batch:")
+                for rank in range(10):
+                    cls_idx = topk_indices[rank].item()
+                    cls_prob = topk_values[rank].item()
+                    print(f"    Class {cls_idx} with prob = {cls_prob:.4f}")
             batch_idx += 1
 
 

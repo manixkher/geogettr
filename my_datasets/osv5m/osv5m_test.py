@@ -89,12 +89,16 @@ class OSV5M(datasets.GeneratorBasedBuilder):
         _URLS = {
             "train": [join('images', 'train_europe')],  # Only using train/00.zip
             "train_meta": "reduced_train_europe.csv",  # Assuming metadata is in train.csv
+            "test": [join('images', 'test')],
+            "test_meta": "reduced_test_europe.csv.csv",
         }
 
         # Use local paths instead of downloading
         data_files = {
             "train": _URLS["train"],  # Local path to the single ZIP
             "train_meta": _URLS["train_meta"],  # Local metadata path
+            "test": _URLS["test"],
+            "test_meta":_URLS['test_meta']
         }
 
         return [
@@ -104,7 +108,14 @@ class OSV5M(datasets.GeneratorBasedBuilder):
                     "image_paths": dl_manager.iter_files(data_files["train"]),
                     "annotation_path": data_files["train_meta"],
                 },
-            )
+            ),
+            datasets.SplitGenerator(
+                name=datasets.Split.TEST,
+                gen_kwargs={
+                    "image_paths": dl_manager.iter_files(data_files["test"]),
+                    "annotation_path": data_files["test_meta"],
+                },
+            ),
         ]
 
 

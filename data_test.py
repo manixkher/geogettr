@@ -16,7 +16,7 @@ class OSV5MTest(OSV5M):
         self.TRAIN_DIR = os.path.join(self.DATASET_DIR, "images", "train_europe")
         self.TRAIN_CSV = os.path.join(self.DATASET_DIR, "reduced_train_europe.csv")
         self.TEST_DIR = os.path.join(self.DATASET_DIR, "images", "test_europe")
-        self.TEST_CSV = os.path.join(self.DATASET_DIR, "reduced_train_europe.csv")
+        self.TEST_CSV = os.path.join(self.DATASET_DIR, "reduced_test_europe.csv")
         super().__init__(*args, **kwargs)
         self.full = True
     
