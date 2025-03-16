@@ -36,9 +36,14 @@ if __name__ == "__main__":
     BATCH_SIZE = 128
     NUM_WORKERS = 0
 
+    # transform = transforms.Compose([
+    #     transforms.Resize((224, 224)),
+    #     transforms.ToTensor(),
+    # ])
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
     # dataset = OSV5MDataset(transform=transform)
@@ -220,7 +225,7 @@ if __name__ == "__main__":
                 if isinstance(outputs, tuple):
                     outputs = outputs[0]  # Handle DataParallel output
 
-                loss = criterion(outputs, latlon_of_image, geocell_index)
+                loss = criterion(outputs, latlon_of_image, geocell_index, geocells_smoothed)
                 total_val_loss += loss.item()
                 val_progress.set_postfix(loss=f"{loss.item():.4f}")  # Update tqdm
 

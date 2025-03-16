@@ -48,7 +48,7 @@ def haversine_distance(lat1, lon1, lat2, lon2, earth_radius=6371):
     return earth_radius * c  # Returns distance in km
 
 class OSV5MDataset(Dataset):
-    def __init__(self, split="train", transform=None, tau=85, limit=15, val_ratio=0.1, dataset_path = None, label_to_index=None):
+    def __init__(self, split="train", transform=None, tau=75, limit=15, val_ratio=0.1, dataset_path = None, label_to_index=None):
         """
         Args:
             split (str): "train" or "test"
@@ -116,7 +116,7 @@ class OSV5MDataset(Dataset):
     
     @staticmethod
     def default_transform():
-        return transforms.Compose([
+        transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])

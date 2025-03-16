@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=geogettr_train_full
+#SBATCH --job-name=geogettr_train_full_transform
 #SBATCH --partition=PGR-Standard
 #SBATCH --gres=gpu:a40:1             # Request 1 GPUs (a40)
 #SBATCH --mem=62G                # Request 62GB memory
-#SBATCH --time=24:00:00          # Set max runtime (adjust as needed)
-#SBATCH --output=logs/train_log_full_europe_experiment.out   # Save log output
+#SBATCH --time=48:00:00          # Set max runtime (adjust as needed)
+#SBATCH --output=logs/train_log_full_europe_transform.out   # Save log output
 
 echo "Starting SLURM job on $(hostname)"
 
@@ -50,7 +50,7 @@ cd $HOME/Work/geogettr  # Adjust to match your repo location
 
 # Run training (process only /00)
 rm -rf ~/.cache/huggingface/datasets/
-python train.py --dataset "$SCRATCH_DIR" --epochs 15 --model_name "reduced_europe_experiment"
+python train.py --dataset "$SCRATCH_DIR" --epochs 15 --model_name "reduced_europe_transform"
 cd $SCRATCH_DIR
 rm -rf my_datasets
 echo "SLURM job finished."

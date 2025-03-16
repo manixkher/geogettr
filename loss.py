@@ -33,7 +33,7 @@ def haversine_distance(lat1, lon1, lat2, lon2, earth_radius=6371):
     return earth_radius * c
 
 class HaversineSmoothedLoss(nn.Module):
-    def __init__(self, tau=85.0):
+    def __init__(self, tau=75.0):
         super(HaversineSmoothedLoss, self).__init__()
         self.tau = tau
 
