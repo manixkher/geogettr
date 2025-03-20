@@ -37,15 +37,15 @@ def main():
     print("Loaded label mapping:", label_to_index)
     
     # Define image transforms.
-    # transform = transforms.Compose([
-    #     transforms.Resize((224, 224)),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize(mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])
-    # ])
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])
     ])
+    # transform = transforms.Compose([
+    #     transforms.Resize((224, 224)),
+    #     transforms.ToTensor(),
+    # ])
     
     # Load test dataset.
     test_dataset = OSV5MDataset(split="test", transform=transform, dataset_path=args.dataset, label_to_index=label_to_index)
