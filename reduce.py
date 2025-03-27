@@ -4,7 +4,7 @@ import pandas as pd
 metadata_path = "/home/s2089339/Work/geogettr/my_datasets/osv5m/train.csv"
 
 df = pd.read_csv(metadata_path, low_memory=False)
-# print(df.head())
+
 
 # Europe bounding box
 EUROPE_BOUNDS = {

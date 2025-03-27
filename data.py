@@ -9,30 +9,21 @@ from datasets import load_dataset
 from PIL import Image
 from data_test import OSV5MTest  # Importing OSV5MTest
 
-# Load Quadtree Data (Preload as a Tensor)
+
 quadtree_file_path = "reduced_quadtree_10_1000.csv"
 quadtree_df = pd.read_csv(quadtree_file_path)
-# quadtree_centroids = dict(zip(quadtree_df["cluster_id"], zip(quadtree_df["mean_lat"], quadtree_df["mean_lon"])))
+
 
 # Convert to PyTorch tensor (lat/lon values only)
 quadtree_centroids = torch.tensor(
     quadtree_df[["mean_lat", "mean_lon"]].values, dtype=torch.float32, device="cuda"
 )
 
-# Convert cluster IDs separately (since they are categorical labels)
+
 quadtree_cluster_ids = torch.tensor(
     quadtree_df["cluster_id"].values, dtype=torch.long, device="cuda"
 )
 
-# def haversine_distance(lat1, lon1, lat2, lon2):
-#     """Calculate the great-circle distance between two points on Earth using the Haversine formula."""
-#     R = 6371  # Earth radius in km
-#     lat1, lon1, lat2, lon2 = map(np.radians, [lat1, lon1, lat2, lon2])
-#     dlat = lat2 - lat1
-#     dlon = lon2 - lon1
-#     a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
-#     c = 2 * np.arcsin(np.sqrt(a))
-#     return R * c
 
 def haversine_distance(lat1, lon1, lat2, lon2, earth_radius=6371):
     """Compute Haversine distance between two sets of points using PyTorch (GPU-accelerated)."""
@@ -76,7 +67,7 @@ class OSV5MDataset(Dataset):
 
         latlon = torch.tensor([lat, lon], dtype=torch.float32, device=self.device)
 
-        # Compute Haversine distances to all geocells (Vectorized)
+        # Compute Haversine distances to all geocells 
         dists = haversine_distance(
             latlon[0].expand(quadtree_centroids.shape[0]),
             latlon[1].expand(quadtree_centroids.shape[0]),

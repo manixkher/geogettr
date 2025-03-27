@@ -1,14 +1,13 @@
 import csv
 from collections import Counter
 
-# Input / Output files
+
 input_csv = "/home/s2089339/Work/geogettr/my_datasets/osv5m/train_europe.csv"
 output_csv = "/home/s2089339/Work/geogettr/my_datasets/osv5m/reduced_train_europe.csv"
 
 # Column name for geocell
 quadtree_column = "quadtree_10_1000"
 
-# Threshold (remove geocells with < 500 images)
 THRESHOLD = 500
 
 def main():
