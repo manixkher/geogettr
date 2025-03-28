@@ -17,7 +17,7 @@ def main():
         for row in train_reader:
             allowed_geocells.add(row[quadtree_column])
 
-    print(f"✅ Reduced training set has {len(allowed_geocells)} unique geocells.")
+    print(f"Reduced training set has {len(allowed_geocells)} unique geocells.")
 
     # Go through the test.csv and keep only rows with geocells in allowed_geocells
     kept_count = 0

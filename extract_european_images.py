@@ -37,7 +37,7 @@ def extract_images_from_zip(zip_path):
         zip_image_names = zip_ref.namelist()
 
 
-        print(f"✅ First 10 images inside {os.path.basename(zip_path)}: {zip_image_names[:10]}")
+        print(f"First 10 images inside {os.path.basename(zip_path)}: {zip_image_names[:10]}")
 
 
         for image_name in zip_image_names:
