@@ -182,8 +182,6 @@ if __name__ == "__main__":
                 geocell_index = geocell_index.to(device)
 
                 outputs = model(images)
-                if isinstance(outputs, tuple):
-                    outputs = outputs[0]  # Handle DataParallel output
 
                 loss = criterion(outputs, latlon_of_image, geocell_index, geocells_smoothed)
                 total_val_loss += loss.item()

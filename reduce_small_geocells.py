@@ -11,16 +11,15 @@ quadtree_column = "quadtree_10_1000"
 THRESHOLD = 500
 
 def main():
-    # 1) First pass: Count how many images per geocell
+    # Count how many images per geocell
     with open(input_csv, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         geocell_counts = Counter(row[quadtree_column] for row in reader)
 
-    # 2) Determine "small" geocells
+  
     small_cells = {cell for cell, cnt in geocell_counts.items() if cnt < THRESHOLD}
     print(f"Found {len(small_cells)} geocells with fewer than {THRESHOLD} images.")
 
-    # 3) Second pass: create reduced CSV
     with open(input_csv, "r", encoding="utf-8") as fin, \
          open(output_csv, "w", encoding="utf-8", newline="") as fout:
 

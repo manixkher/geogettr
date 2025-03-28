@@ -7,7 +7,7 @@ import pandas as pd
 from torch.utils.data import Dataset
 from datasets import load_dataset
 from PIL import Image
-from data_test import OSV5MTest  # Importing OSV5MTest
+from data_test import OSV5MTest 
 
 
 quadtree_file_path = "reduced_quadtree_10_1000.csv"
